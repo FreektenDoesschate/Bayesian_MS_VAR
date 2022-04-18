@@ -4,8 +4,8 @@ int<lower=1> dim; // Dimension of observations
 matrix[T,dim] y; // Observations
 int<lower=1> ARdim; // Number of AR terms
 int<lower=1> nreg; // Number of regimes
-int<lower = 0, upper = 1> mean_reg;
-int<lower = 0, upper = 1> sigma_reg;
+int<lower = 0, upper = 1> mean_reg; // A boolean value indicating if there is a unique mean structure for each regime.
+int<lower = 0, upper = 1> sigma_reg; // A boolean value indicating if there is a unique covariance structure for each regime.
 vector[nreg] Q_alpha; // Transition probabilities hyperparameter
 real mu_mean; // Mean value of the normal prior for the constant means
 real mu_sd; // Standard deviation of the normal prior for the constant means
