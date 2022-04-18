@@ -118,7 +118,7 @@ generated quantities {
 	real log_p_S;
   
 	for(i in 1:(sigma_reg ? nreg : 1)){
-		sigma[i]= multiply_lower_tri_self_transpose(L_sigma[i]);
+		sigma[i]= multiply_lower_tri_self_transpose(L_sigma[i]); // Recover correlation matrix from cholesky factors
 	}
 	
    // Viterbi algorithm 
