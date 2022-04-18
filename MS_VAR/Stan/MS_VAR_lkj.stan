@@ -33,7 +33,7 @@ for(i in 1:(sigma_reg ? nreg : 1)){
 	for(j in 1:dim){
 		sdev[i,j]=sqrt(vari[i,j]);
 	}
-	L_sigma[i] = diag_pre_multiply(sdev[i], L_corr[i]);
+	L_sigma[i] = diag_pre_multiply(sdev[i], L_corr[i]); // Something to do with cholesky factor (LKJ prior)
 }
 }
 
