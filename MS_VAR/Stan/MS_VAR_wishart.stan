@@ -133,7 +133,7 @@ generated quantities {
 		sigma[i]= multiply_lower_tri_self_transpose(L_sigma[i]);
 	}
 	
-   // Viterbi algorithm 
+   // Viterbi algorithm; Used to determine the most likely sequence of states to have generated the data
   { 
     int back_ptr[T-ARdim,nreg];
     real best_logp[T-ARdim+1,nreg];
