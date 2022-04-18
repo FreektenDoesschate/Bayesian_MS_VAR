@@ -1,28 +1,28 @@
 data {
-int<lower=1> T; // Number of observations
-int<lower=1> dim; // Dimension of observations
-matrix[T,dim] y; // Observations
-int<lower=1> ARdim; // Number of AR terms
-int<lower=1> nreg; // Number of regimes
-int<lower = 0, upper = 1> mean_reg; // A boolean value indicating if there is a unique mean structure for each regime.
-int<lower = 0, upper = 1> sigma_reg; // A boolean value indicating if there is a unique covariance structure for each regime.
-vector[nreg] Q_alpha; // Transition probabilities hyperparameter
-real mu_mean; // Mean value of the normal prior for the constant means
-real mu_sd; // Standard deviation of the normal prior for the constant means
-real phi_mean; // Mean value of the normal prior for the autoregressive coefficients
-real phi_sd; // Standard deviation of the normal prior for the autoregressive coefficients
-real eta; // LKJ hyperparameter
-real gamma_alpha; // Inverse gamma hyperparameter (shape)
-real gamma_beta;  // Inverse gamma hyperparameter (scale)
+int<lower=1> T; 			// Number of observations
+int<lower=1> dim; 			// Dimension of observations
+matrix[T,dim] y; 			// Observations
+int<lower=1> ARdim; 			// Number of AR terms
+int<lower=1> nreg; 			// Number of regimes
+int<lower = 0, upper = 1> mean_reg; 	// A boolean value indicating if there is a unique mean structure for each regime.
+int<lower = 0, upper = 1> sigma_reg; 	// A boolean value indicating if there is a unique covariance structure for each regime.
+vector[nreg] Q_alpha; 			// Transition probabilities hyperparameter
+real mu_mean; 				// Mean value of the normal prior for the constant means
+real mu_sd; 				// Standard deviation of the normal prior for the constant means
+real phi_mean; 				// Mean value of the normal prior for the autoregressive coefficients
+real phi_sd; 				// Standard deviation of the normal prior for the autoregressive coefficients
+real eta; 				// LKJ hyperparameter
+real gamma_alpha; 			// Inverse gamma hyperparameter (shape)
+real gamma_beta;  			// Inverse gamma hyperparameter (scale)
 }
 
 parameters {
-simplex[nreg] Q[nreg] ;  // Transition probabilities
-vector[dim] mu[mean_reg ? nreg : 1]; // Mean
-matrix[dim,dim*ARdim] phi[mean_reg ? nreg : 1]; // AR coefficients
+simplex[nreg] Q[nreg] ;  					// Transition probabilities
+vector[dim] mu[mean_reg ? nreg : 1]; 				// Mean
+matrix[dim,dim*ARdim] phi[mean_reg ? nreg : 1]; 		// AR coefficients
 
-vector<lower=0>[dim] vari[sigma_reg ? nreg : 1]; // Variance
-cholesky_factor_corr[dim] L_corr[sigma_reg ? nreg : 1]; //Lower Cholesky factors of the correlation matrices
+vector<lower=0>[dim] vari[sigma_reg ? nreg : 1]; 		// Variance
+cholesky_factor_corr[dim] L_corr[sigma_reg ? nreg : 1]; 	//Lower Cholesky factors of the correlation matrices
 }
 
 transformed parameters{
@@ -33,7 +33,7 @@ for(i in 1:(sigma_reg ? nreg : 1)){
 	for(j in 1:dim){
 		sdev[i,j]=sqrt(vari[i,j]);
 	}
-	L_sigma[i] = diag_pre_multiply(sdev[i], L_corr[i]); // Something to do with cholesky factor (LKJ prior)
+	L_sigma[i] = diag_pre_multiply(sdev[i], L_corr[i]); 	// Something to do with cholesky factor (LKJ prior)
 }
 }
 
@@ -41,23 +41,23 @@ model {
 // Priors
 
 for (k in 1:nreg){
-	Q[k] ~ dirichlet(Q_alpha);
+	Q[k] ~ dirichlet(Q_alpha); 			// Set prior on transition probability matrix
 }
 
 for (k in 1:(mean_reg ? nreg : 1)){
-	mu[k] ~ normal(mu_mean,mu_sd);
-	to_vector(phi[k]) ~ normal(phi_mean,phi_sd);	
+	mu[k] ~ normal(mu_mean,mu_sd); 			// prior on means for each regime	
+	to_vector(phi[k]) ~ normal(phi_mean,phi_sd); 	// prior on covariance structure for each regime	
 }
 
 for (k in 1:(sigma_reg ? nreg : 1)){
-	vari[k] ~ inv_gamma(gamma_alpha, gamma_beta);
-	L_corr[k] ~ lkj_corr_cholesky(eta);
+	vari[k] ~ inv_gamma(gamma_alpha, gamma_beta);	// what does the inverse gamma prior do?
+	L_corr[k] ~ lkj_corr_cholesky(eta);		// prior on correlation matrix. How does it relate to cholesky factor?
 }
 {
     //forward algorithm for computing log p(y|...)
     
 	real fwd[nreg,nreg];
-    real alphas[T-ARdim,nreg];
+    	real alphas[T-ARdim,nreg];
 	real py[nreg];
 	real logQ[nreg,nreg];
 	int n_m = mean_reg ? nreg : 1;
