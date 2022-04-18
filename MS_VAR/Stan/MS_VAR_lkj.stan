@@ -118,7 +118,7 @@ generated quantities {
 	real log_p_S;
   
 	for(i in 1:(sigma_reg ? nreg : 1)){
-		sigma[i]= multiply_lower_tri_self_transpose(L_sigma[i]);
+		sigma[i]= multiply_lower_tri_self_transpose(L_sigma[i]); // used to recover correlation matrix from cholesky factor
 	}
 	
    // Viterbi algorithm; Used to determine the most likely sequence of states to have generated the output
