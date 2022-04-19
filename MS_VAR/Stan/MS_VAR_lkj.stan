@@ -111,7 +111,7 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 	
 	// adding the marginal log-likelihood to Stan target distribution
 	
-    target += log_sum_exp(alphas[T-ARdim,]);	
+    target += log_sum_exp(alphas[T-ARdim,]);	// Add the alphas for each regime at the final timepoint (final step of forward algorithm)
 }
 }
 
