@@ -60,8 +60,8 @@ for (k in 1:(sigma_reg ? nreg : 1)){
     	real alphas[T-ARdim,nreg];
 	real py[nreg];
 	real logQ[nreg,nreg];
-	int n_m = mean_reg ? nreg : 1;
-	int n_s = sigma_reg ? nreg : 1;
+	int n_m = mean_reg ? nreg : 1; // number of regimes with distinct mean 
+	int n_s = sigma_reg ? nreg : 1; // number of regimes with distinct covariance matrix?
 	vector[dim] meanval[n_m];
 	row_vector[dim*ARdim] ylags;
 	
@@ -80,7 +80,7 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 	
 	for(i in 1:nreg){	
 		int ii = i; //added by jbb for min fix
-		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // not sure how this statement works?
+		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // Set alpha for first timepoint? 
 	}
 	// alphas are the probabilities at each 'branch' of the forward algorithm tree. 
 	// Each alpha contains the probabilities of all nodes below in the tree (due to the markov property)
