@@ -67,7 +67,7 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 	
 	for(i in 1:nreg){
 		for (j in 1:nreg){
-			logQ[i,j]= log(Q[i,j]);
+			logQ[i,j]= log(Q[i,j]);  // Why is Q, transit prob, now 2 dimensions?
 		}
 	}
 	
@@ -80,26 +80,29 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 	
 	for(i in 1:nreg){	
 		int ii = i; //added by jbb for min fix
-		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);
+		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // not sure how this statement works?
 	}
+	// alphas are the probabilities at each 'branch' of the forward algorithm tree. 
+	// Each alpha contains the probabilities of all nodes below in the tree (due to the markov property)
 	
-    for (t in (ARdim+2):T){	
+	
+    for (t in (ARdim+2):T){						// for each timepoint
 
 		for(i in 1:ARdim){
-			ylags[(i-1)*dim+1:i*dim]=y[t-i,];
+			ylags[(i-1)*dim+1:i*dim]=y[t-i,];		// set ylags again??
 		}
 		for(k in 1:n_m){
-			meanval[k]=mu[k]+phi[k]*ylags';
+			meanval[k]=mu[k]+phi[k]*ylags';			// set meanval again??
 		}
 		
-		for(i in 1:nreg){
+		for(i in 1:nreg){				
 			int ii = i; //added by jbb for min fix
 			py[i] = multi_normal_cholesky_lpdf(y[t,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);
 		}	
 		
 		for(i in 1:nreg){
 		  for (j in 1:nreg){
-			fwd[j,i] = alphas[t-ARdim-1,j] + logQ[j,i] + py[i];
+			fwd[j,i] = alphas[t-ARdim-1,j] + logQ[j,i] + py[i]; // for each regime-to-regime combination, 
 		}
 		  alphas[t-ARdim,i]=log_sum_exp(fwd[,i]);
 		}
