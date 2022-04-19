@@ -107,16 +107,18 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 		
 		for(i in 1:nreg){		// at each timepoint, 
 		  for (j in 1:nreg){
-			fwd[j,i] = alphas[t-ARdim-1,j] + logQ[j,i] + py[i]; // for each regime-to-regime combination, 
+			fwd[j,i] = alphas[t-ARdim-1,j] + logQ[j,i] + py[i]; // determine all forward terms at t-1.
+			// forward term = alphas at t-1 (alphas) * transit probability (Q) * emission probability (py)
+			// everything is in log scale, therefore sum instead of multiply
 		}
-		  alphas[t-ARdim,i]=log_sum_exp(fwd[,i]);
+		  alphas[t-ARdim,i]=log_sum_exp(fwd[,i]); // alpha at time t is equal to sum of all forward terms at t-1
 		}
 		  
     }
 	
 	// adding the marginal log-likelihood to Stan target distribution
 	
-    target += log_sum_exp(alphas[T-ARdim,]);	// Add the alphas for each regime at the final timepoint (final step of forward algorithm)
+    target += log_sum_exp(alphas[T-ARdim,]);	// Add the alphas for each regime at the final timepoint (final step of forward algorithm), to get the final likelihood
 }
 }
 
