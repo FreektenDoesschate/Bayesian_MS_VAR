@@ -84,8 +84,8 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 		int ii = i; //added by jbb for min fix
 		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // Set alpha for first timepoint? Why conditional on minimal values?
 	}
-	// alphas are the probabilities at each 'branch' of the forward algorithm tree. 
-	// Each alpha contains the probabilities of all nodes below in the tree (due to the markov property)
+	// alphas is the emission probability at t=1 for each regime
+	
 	
 	
     for (t in (ARdim+2):T){						// for each timepoint
@@ -108,10 +108,10 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 		for(i in 1:nreg){		// at each timepoint, 
 		  for (j in 1:nreg){
 			fwd[j,i] = alphas[t-ARdim-1,j] + logQ[j,i] + py[i]; // determine all forward terms at t-1.
-			// forward term = alphas at t-1 (alphas) * transit probability (Q) * emission probability (py)
+			// forward term = alphas at previous timepoint * transit probability (Q) * emission probability (py)
 			// everything is in log scale, therefore sum instead of multiply
 		}
-		  alphas[t-ARdim,i]=log_sum_exp(fwd[,i]); // alpha at time t is equal to sum of all forward terms at t-1
+		  alphas[t-ARdim,i]=log_sum_exp(fwd[,i]); // alpha at time t is equal to sum of all forward terms at t-1. Stored to calc forward term at next timepoint, until final timepoint.
 		}
 		  
     }
