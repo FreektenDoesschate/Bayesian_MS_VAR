@@ -100,7 +100,7 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 		
 		for(i in 1:nreg){				
 			int ii = i; //added by jbb for min fix
-			py[i] = multi_normal_cholesky_lpdf(y[t,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]); 
+			py[i] = multi_normal_cholesky_lpdf(y[t,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // somehow change meanval to correlations?
 			// draw from multivariate correlation prior for data at time t, given the predicted observations based on lags (meanval) and covariance prior? (L_sigma)
 			// py = predicted correlation at time t? = emission for each regime?
 		}	
