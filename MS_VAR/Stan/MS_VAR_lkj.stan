@@ -41,7 +41,7 @@ model {
 // Priors
 
 for (k in 1:nreg){
-	Q[k] ~ dirichlet(Q_alpha); 			// Set prior on transition probability matrix
+	Q[k] ~ dirichlet(Q_alpha); 			// Set prior on transition probability matrix. Change to impose sequential states.
 }
 
 for (k in 1:(mean_reg ? nreg : 1)){
