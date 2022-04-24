@@ -77,14 +77,13 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 	for(k in 1:n_m){				// this is the actual VAR part, at timepoint 1 in this case
 		meanval[k]=mu[k]+phi[k]*ylags'; 	// Meanval is a collection (n=dim) of vectors of length n_m
 		// meanval = mean + phi*lagged_observations. Phi are the autoregressive coefficients.
-		// meanval are the measured signals for each regime at first timepoint in this case
+		// meanval = predicted value of y at time 1, in this ase
 	}
 	
 	for(i in 1:nreg){	
 		int ii = i; //added by jbb for min fix
-		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // Set alpha for first timepoint? Why conditional on minimal values?
+		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // get initial values for alpha
 	}
-	// alphas is the emission probability at t=1 for each regime
 	
 	
 	
@@ -95,14 +94,12 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 		}
 		for(k in 1:n_m){					// VAR at timepoint t
 			meanval[k]=mu[k]+phi[k]*ylags';			// measured signals (dim dimensions) for each regime is equal to mean of regime + AR coefs*signal 
-			
 		}
 		
 		for(i in 1:nreg){				
 			int ii = i; //added by jbb for min fix
-			py[i] = multi_normal_cholesky_lpdf(y[t,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // somehow change meanval to correlations?
-			// draw from multivariate correlation prior for data at time t, given the predicted observations based on lags (meanval) and covariance prior? (L_sigma)
-			// py = predicted correlation at time t? = emission for each regime?
+			py[i] = multi_normal_cholesky_lpdf(y[t,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // emission probability at timepoint t
+			// for each regime, the probability of observed y, given the predicted observations based on lags (meanval) and covariance between observations (L_sigma)
 		}	
 		
 		for(i in 1:nreg){		// at each timepoint, 
