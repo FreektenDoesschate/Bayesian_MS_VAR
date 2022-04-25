@@ -1,11 +1,41 @@
+// Stan code for a Markov-switching vector autoregressive (MS-VAR) model.
+
+// MS-VAR model for timeseries {y} of dimension {dim} and timepoints {T}, with {ARdim} lags and {nreg} regimes.
+
+// Regimes can be determined by the (lag)predicted value of {y[t,dims]}, the variance-covariance matrix of {y[t,dims]} or both. 
+// These options can be set with {mean_reg} and sigma_reg, respectively. With the {mean_reg} option set to 1, each regime gets its own mean vector {mu} and AR coefficients {phi}.
+// With {sigma_reg} set to 1, each regimes gets its own covariance matrix {L_sigma}. Both set to 1, each regime gets a unique mean vector, AR coefs and cov matrix. 
+
+// Using the cholesky factor {eta}, the covariance is modeled as a combination of variances and correlation matrix. 
+// eta > 1, extreme correlations are less likely. eta < 1, extreme correlations are more likely.
+
+// The autoregressive coefficients {phi} all have the same prior Normal(phi_mean, phi_sd).
+// meanval
+
+// determining emission probabilities {py} for each regime using cholesky factor.
+
+// The transition matrix {Q} is modeled as a vector of dirichlet distributions. 
+// The parameters are set using vector {Q_alpha}, which sets each row of Q to a dirichlet with this vector.
+// For custom Qs, set dirichlet priors manually in code.
+
+
+//
+//
+//
+//
+//
+//
+
+
+
 data {
 int<lower=1> T; 			// Number of observations
 int<lower=1> dim; 			// Dimension of observations
 matrix[T,dim] y; 			// Observations
 int<lower=1> ARdim; 			// Number of AR terms
 int<lower=1> nreg; 			// Number of regimes
-int<lower = 0, upper = 1> mean_reg; 	// A boolean value indicating if there is a unique mean structure for each regime.
-int<lower = 0, upper = 1> sigma_reg; 	// A boolean value indicating if there is a unique covariance structure for each regime.
+int<lower = 0, upper = 1> mean_reg; 	// A boolean value indicating if there is a unique mean structure for each regime. ie, regimes based on prediction of y[t] based on lagged data.
+int<lower = 0, upper = 1> sigma_reg; 	// A boolean value indicating if there is a unique covariance structure for each regime. ie, regimes based on covariance between y[t,].
 vector[nreg] Q_alpha; 			// Transition probabilities hyperparameter
 real mu_mean; 				// Mean value of the normal prior for the constant means
 real mu_sd; 				// Standard deviation of the normal prior for the constant means
@@ -29,7 +59,7 @@ transformed parameters{
 vector[dim] sdev[sigma_reg ? nreg : 1];
 matrix[dim,dim] L_sigma[sigma_reg ? nreg : 1];			// Covariance matrix for each regime (or single cov function if identical for each regime) 
 
-for(i in 1:(sigma_reg ? nreg : 1)){
+for(i in 1:(sigma_reg ? nreg : 1)){ 				// if sigma_reg > 1, each regime gets its own covariance/correlation matrix
 	for(j in 1:dim){
 		sdev[i,j]=sqrt(vari[i,j]);
 	}
@@ -50,7 +80,7 @@ for (k in 1:(mean_reg ? nreg : 1)){
 }
 
 for (k in 1:(sigma_reg ? nreg : 1)){
-	vari[k] ~ inv_gamma(gamma_alpha, gamma_beta);	// what does the inverse gamma prior do?
+	vari[k] ~ inv_gamma(gamma_alpha, gamma_beta);	// vari is in L_sigma, determines the diagonal of covariance matrix (variance)
 	L_corr[k] ~ lkj_corr_cholesky(eta);		// prior on correlation matrix. 
 }
 {
@@ -82,7 +112,7 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 	
 	for(i in 1:nreg){	
 		int ii = i; //added by jbb for min fix
-		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // get initial values for alpha
+		alphas[1,i] = multi_normal_cholesky_lpdf(y[ARdim+1,] | meanval[min(n_m,ii)],L_sigma[min(n_s,ii)]);  // get initial emission probabilities
 	}
 	
 	
