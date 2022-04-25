@@ -12,8 +12,8 @@ real mu_sd; 				// Standard deviation of the normal prior for the constant means
 real phi_mean; 				// Mean value of the normal prior for the autoregressive coefficients
 real phi_sd; 				// Standard deviation of the normal prior for the autoregressive coefficients
 real eta; 				// LKJ hyperparameter
-real gamma_alpha; 			// Inverse gamma hyperparameter (shape)
-real gamma_beta;  			// Inverse gamma hyperparameter (scale)
+real gamma_alpha; 			// Inverse gamma hyperparameter (shape), for variance
+real gamma_beta;  			// Inverse gamma hyperparameter (scale), for variance
 }
 
 parameters {
