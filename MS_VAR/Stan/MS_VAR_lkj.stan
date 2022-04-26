@@ -3,28 +3,32 @@
 // MS-VAR model for timeseries {y} of dimension {dim} and timepoints {T}, with {ARdim} lags and {nreg} regimes.
 
 // Regimes can be determined by the (lag)predicted value of {y[t,dims]}, the variance-covariance matrix of {y[t,dims]} or both. 
-// These options can be set with {mean_reg} and sigma_reg, respectively. With the {mean_reg} option set to 1, each regime gets its own mean vector {mu} and AR coefficients {phi}.
-// With {sigma_reg} set to 1, each regimes gets its own covariance matrix {L_sigma}. Both set to 1, each regime gets a unique mean vector, AR coefs and cov matrix. 
+// These options can be set with {mean_reg} and sigma_reg, respectively. 
+// With the {mean_reg} option set to 1, each regime gets its own mean vector {mu} and AR coefficients {phi}.
+// With {sigma_reg} set to 1, each regimes gets its own covariance matrix {L_sigma}. 
+// Both set to 1, each regime gets a unique mean vector, AR coefs and cov matrix. 
 
-// Using the cholesky factor {eta}, the covariance is modeled as a combination of variances and correlation matrix. 
+// Using the cholesky factor {eta}, the covariance is modeled as a combination of variances (i.e., amplitude of the signal) and correlation matrix (i.e., cross-correlation). 
 // eta > 1, extreme correlations are less likely. eta < 1, extreme correlations are more likely.
 
 // The autoregressive coefficients {phi} all have the same prior Normal(phi_mean, phi_sd).
-// meanval
+// {meanval} is the prediction of y[t,] based on a mean vector {mu}, lags {ylags} and AR coefficients {phi}, overall ({mean_reg} == 0) or regemine specific ({mean_reg} == 1)
+// {L_sigma} is the covariance matrix which is updated over time, overall ({sigma_reg} == 0) or regemine specific ({sigma_reg} == 1)
 
-// determining emission probabilities {py} for each regime using cholesky factor.
+// The algorithm is determining emission probabilities {py} for each regime using the lkj-prior, given the predicted {meanval} and {L_sigma} up to that timepoint.
 
 // The transition matrix {Q} is modeled as a vector of dirichlet distributions. 
 // The parameters are set using vector {Q_alpha}, which sets each row of Q to a dirichlet with this vector.
 // For custom Qs, set dirichlet priors manually in code.
 
+// The Markov-model is then estimated using a forward model, using {alphas}, see https://www.youtube.com/watch?v=9-sPm4CfcD0. 
+// {alphas[t,i]} represent the probability that the observed values at time {t} are produced by regime {i}. This object will be updated over time untill the last timepoint. 
+// Specifically, first, the intial values of {alphas} and predicted {meanval} are established.
+// Then, for each timepoint the {alphas} are determined by the {alphas} at the previous timepoint, the transition probabilities {logQ}, and the emission probabilities {py}.
+// This is repeated until the last timepoints. The {alphas} at the last timepoint for each regime are summed. This is the final likelihood (target +=) 
 
-//
-//
-//
-//
-//
-//
+// Something about Viterbi algorithm. Used to backreconstruct which regime is most likely for each timepoint, based on the final alphas?
+// {sigma} is the final covariance (or correlation?) matrix (backtransformed from cholesky factor)
 
 
 
