@@ -200,9 +200,29 @@ generated quantities {
 	
 		for(i in 1:ARdim){
 			ylags[(i-1)*dim+1:i*dim]=y[t-i,];
+			//create ylags_prime
 		}
+		
+		
 		for(k in 1:n_m){
 			meanval[k]=mu[k]+phi[k]*ylags';
+			
+			
+			// GRANGER CAUSALITY
+			// get residuals for each regime. specify meanres above
+			// meanres[k] = y[t,]-meanval[k]
+			
+			// For granger causality, determine meanval here with part of ylags or phi (corresponding to a single channel) set to 0
+			
+			// for(i in 1:dim){
+			//	meanval_prime[k]=mu[k]+phi[k]*ylags_prime[c]'; ylags_prime is reduced lags data (1 channel set to 0)
+			// 	meanres_prime[k] = y[t,]-meanval[k]; meanres_prime = residuals of reduced AR
+			//		
+			//	GC[k] = meanres_prime[k] - meanres[k];  meanres and meanres_prime are vectors. GC is has dimension [t, dim*dim, k]. For each timepoint {t} a {dim*dim} conn matrix, for each regime {k}.
+			//	GC is vector granger causality coeff, for GC from channel i to all other channels, for regime k at time t
+			//	if GC is positive, channel i had G-causal influence on that channel in the vector.
+			// 	later in code summarize GC for each regime (averaging over regime timepoints?)
+			// }
 		}
 			  	  
 	    for(i in 1:nreg){
