@@ -205,10 +205,10 @@ generated quantities {
 		
 		
 		for(k in 1:n_m){
-			meanval[k]=mu[k]+phi[k]*ylags';
+			meanval[k]=mu[k]+phi[k]*ylags'; // does this include the cross influence? effect of channel 1 on channel 2? check  dimensions of terms and how matrix multiplication works
 			
 			
-			// GRANGER CAUSALITY
+			// GRANGER CAUSALITY (should I compare based on meanval or based on py?)
 			// get residuals for each regime. specify meanres above
 			// meanres[k] = y[t,]-meanval[k]
 			
