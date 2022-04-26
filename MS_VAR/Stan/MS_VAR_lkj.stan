@@ -2,6 +2,8 @@
 
 // MS-VAR model for timeseries {y} of dimension {dim} and timepoints {T}, with {ARdim} lags and {nreg} regimes.
 
+// 1. MODEL SPECIFICATION
+
 // Regimes can be determined by the (lag)predicted value of {y[t,dims]}, the variance-covariance matrix of {y[t,dims]} or both. 
 // These options can be set with {mean_reg} and sigma_reg, respectively. 
 // With the {mean_reg} option set to 1, each regime gets its own mean vector {mu} and AR coefficients {phi}.
@@ -21,16 +23,23 @@
 // The parameters are set using vector {Q_alpha}, which sets each row of Q to a dirichlet with this vector.
 // For custom Qs, set dirichlet priors manually in code.
 
+// 2. FORWARD MODEL
+
 // The Markov-model is then estimated using a forward model, using {alphas}, see https://www.youtube.com/watch?v=9-sPm4CfcD0. 
 // {alphas[t,i]} represent the probability that the observed values at time {t} are produced by regime {i}. This object will be updated over time untill the last timepoint. 
 // Specifically, first, the intial values of {alphas} and predicted {meanval} are established.
 // Then, for each timepoint the {alphas} are determined by the {alphas} at the previous timepoint, the transition probabilities {logQ}, and the emission probabilities {py}.
 // This is repeated until the last timepoints. The {alphas} at the last timepoint for each regime are summed. This is the final likelihood (target +=) 
 
+// 3. VITERBI ALGORITHM
+
 // Something about Viterbi algorithm. Used to backreconstruct which regime is most likely for each timepoint, based on the final alphas?
 // {sigma} is the final covariance (or correlation?) matrix (backtransformed from cholesky factor)
 
-// how to add granger causality?
+// 4. GRANGER CAUSALITY
+
+// how to add granger causality? First intuition is that GC depends on {meanval}, i.e., how well does the model predict y[t,], with/without the lags of a specific channel.  
+//
 
 
 
@@ -130,6 +139,7 @@ for (k in 1:(sigma_reg ? nreg : 1)){
 		}
 		for(k in 1:n_m){					// VAR at timepoint t
 			meanval[k]=mu[k]+phi[k]*ylags';			// measured signals (dim dimensions) for each regime is equal to mean of regime + AR coefs*signal 
+			// For Granger causality, test if specific values of phi are zero?? Maybe store phi for each timepoint?
 		}
 		
 		for(i in 1:nreg){				
