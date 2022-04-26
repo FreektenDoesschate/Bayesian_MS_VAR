@@ -30,6 +30,8 @@
 // Something about Viterbi algorithm. Used to backreconstruct which regime is most likely for each timepoint, based on the final alphas?
 // {sigma} is the final covariance (or correlation?) matrix (backtransformed from cholesky factor)
 
+// how to add granger causality?
+
 
 
 data {
